@@ -1,9 +1,9 @@
 import React from "react";
-import { Bar, Pie, Line } from "react-chartjs-2";
+import { Bar, Pie } from "react-chartjs-2";
 import Chart from "chart.js/auto";
+import { Container, Row, Col, Card } from "react-bootstrap";
 
 function Insights({ tasks }) {
-  // Extracting counts by status
   const statusCounts = tasks.reduce(
     (acc, task) => {
       acc[task.status] = (acc[task.status] || 0) + 1;
@@ -12,7 +12,6 @@ function Insights({ tasks }) {
     { not_started: 0, in_progress: 0, completed: 0 }
   );
 
-  // Extracting counts by type
   const typeCounts = tasks.reduce(
     (acc, task) => {
       acc[task.type] = (acc[task.type] || 0) + 1;
@@ -21,9 +20,8 @@ function Insights({ tasks }) {
     { personal: 0, weekend: 0, official: 0 }
   );
 
-  // Chart data
   const statusData = {
-    labels: ["Not Started", "In Progress", "completed"],
+    labels: ["Not Started", "In Progress", "Completed"],
     datasets: [
       {
         label: "Task Status",
@@ -33,34 +31,73 @@ function Insights({ tasks }) {
           statusCounts.completed,
         ],
         backgroundColor: ["#ff6384", "#36a2eb", "#4bc0c0"],
+        borderColor: ["#ff6384", "#36a2eb", "#4bc0c0"],
+        borderWidth: 1,
       },
     ],
   };
 
   const typeData = {
-    labels: ["personal", "Weekend", "Official"],
+    labels: ["Personal", "Weekend", "Official"],
     datasets: [
       {
         label: "Task Type",
         data: [typeCounts.personal, typeCounts.weekend, typeCounts.official],
         backgroundColor: ["#ff9f40", "#9966ff", "#ffcd56"],
+        borderColor: ["#ff9f40", "#9966ff", "#ffcd56"],
+        borderWidth: 1,
       },
     ],
   };
 
   return (
-    <div >
-      <h2 style={{display:"flex",position:"fixed",top:"3.5rem",left:"48%",fontWeight:"1000",color:"black"}}>INSIGHTS</h2>
-      <div className="insight" style={{display:"flex",justifyItems:"center",alignItems:"center"}}>
-      <div style={{ width: "50%", margin: "auto" }}>
-        <h3>Status Distribution</h3>
-        <Bar data={statusData} />
+    <div>
+      <div className="text-center mb-5">
+        <h1 className="display-5 fw-bold text-primary">Task Insights</h1>
+        <p className="text-muted">Visual overview of your tasks by status and type</p>
       </div>
-      <div style={{ width: "50%", margin: "auto" }}>
-        <h3>Type Distribution</h3>
-        <Pie data={typeData} />
-        </div>
-      </div>
+    <Container className="my-5">
+      {/* Separate Heading */}
+
+      {/* Charts Row */}
+      <Row className="justify-content-center">
+        <Col md={6} className="mb-4 d-flex justify-content-center">
+          <Card className="shadow w-100" style={{ maxWidth: "500px" }}>
+            <Card.Body>
+              <h5 className="text-center text-secondary mb-3">Task Status Distribution</h5>
+              <Bar
+                data={statusData}
+                options={{
+                  responsive: true,
+                  plugins: {
+                    legend: { display: true, position: "top" },
+                    tooltip: { enabled: true },
+                  },
+                }}
+              />
+            </Card.Body>
+          </Card>
+        </Col>
+
+        <Col md={6} className="mb-4 d-flex justify-content-center">
+          <Card className="shadow w-100" style={{ maxWidth: "500px" }}>
+            <Card.Body>
+              <h5 className="text-center text-secondary mb-3">Task Type Distribution</h5>
+              <Pie
+                data={typeData}
+                options={{
+                  responsive: true,
+                  plugins: {
+                    legend: { display: true, position: "top" },
+                    tooltip: { enabled: true },
+                  },
+                }}
+              />
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+    </Container>
     </div>
   );
 }

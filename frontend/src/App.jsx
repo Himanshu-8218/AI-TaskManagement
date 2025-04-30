@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import Signin from "./pages/Signin";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
