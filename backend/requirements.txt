@@ -1,3 +1,14 @@
 transformers
 langchain
 langchain-huggingface
+Flask
+Flask-PyMongo
+Flask-Bcrypt
+Flask-JWT-Extended
+Flask-Cors
+numpy
+pandas
+nltk
+dill
+lightgbm
+scikit-learn

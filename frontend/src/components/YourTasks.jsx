@@ -33,7 +33,7 @@ function YourTasks({ tasks, deleteTask, selectTaskForUpdate }) {
   return (
     <div className="min-vh-100 d-flex flex-column" style={{width: "50rem"}}>
       {selectedTask ? (
-        <div className="d-flex flex-column justify-content-center align-items-center min-vh-100 bg-dark bg-opacity-50" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000 }}>
+        <div className="d-flex flex-column justify-content-center align-items-center min-vh-100" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000 }}>
           <div className="card p-4 shadow" style={{ width: "90%", maxWidth: "800px" }}>
             <button className="btn btn-dark mb-3" onClick={() => setSelectedTask(null)}>
               Back to Tasks
@@ -95,12 +95,12 @@ function YourTasks({ tasks, deleteTask, selectTaskForUpdate }) {
                     onClick={() => setSelectedTask(task)}
                   >
                     <div className="d-flex justify-content-between align-items-start">
-                      <div>
+                      <div >
                         <h4 className="mb-2 text-dark">{task.title}</h4>
                         <div className="d-flex gap-3">
                           <small className="text-muted">Due: {task.due_date}</small>
                           <small className="text-secondary">
-                            Priority: {task.priority && !isNaN(task.priority) ? Number(task.priority).toFixed(2) : 0}
+                            Priority: {task.priority && !isNaN(task.priority) ? Number(task.priority).toFixed(2) : "COMPLETED"}
                           </small>
                         </div>
                       </div>

@@ -9,7 +9,7 @@ from bson import ObjectId
 import pandas as pd
 import nltk
 import dill
-# from title_generator import generate_title
+from title_generator import generate_title
 from nltk.stem import WordNetLemmatizer
 lemmatizer = WordNetLemmatizer()
 
@@ -33,7 +33,8 @@ def preprocess(df):
 
 # Creating Flask Instance
 app = Flask(__name__)
-CORS(app)
+CORS(app, supports_credentials=True)
+
 # Configuration
 app.config["MONGO_URI"] = "mongodb://localhost:27017/Taskbot"  # Update with your MongoDB URI
 app.config["JWT_SECRET_KEY"] = "12xyz98654pgqkksl"  # Replace with a secure key
@@ -109,33 +110,6 @@ def create_task():
     current_user = get_jwt_identity()
     data = request.json
 
-    title = (data.get("title") or "").lower()
-    description = (data.get("description") or "").lower()
-    user_choice = data.get("user_choice")
-
-    time_bound_keywords = ["train", "exam", "medicine", "emergency"]
-    is_time_bound = any(kw in title or kw in description for kw in time_bound_keywords)
-
-    if is_time_bound and user_choice is None:
-        return jsonify({
-            "warning": "It seems like a time-bound task. Do you want to continue as a normal task?",
-            "requires_confirmation": True
-        }), 200
-
-    if is_time_bound and user_choice == "no":
-        task = {
-            "title": data.get("title"),
-            "description": data.get("description"),
-            "due_date": data.get("due_date"),
-            "type": data.get("type"),
-            "status": data.get("status", "not_started"),
-            "priority": None,
-            "username": current_user,
-            "task_type": "time_bound"
-        }
-        tasks_collection.insert_one(task)
-        return jsonify({"message": "TimeBound Task created without priority"}), 201
-
     # Normal task with priority
     input_data = pd.DataFrame([{
         "title": data.get("title"),
@@ -163,7 +137,6 @@ def create_task():
         "status": data.get("status", "not_started"),
         "priority": temp_priority,
         "username": current_user,
-        "task_type": "normal"
     }
 
     tasks_collection.insert_one(task)
@@ -193,24 +166,56 @@ def update_task(task_id):
         task = tasks_collection.find_one({"_id": ObjectId(task_id), "username": current_user})
         if not task:
             return jsonify({"error": "Task not found"}), 404
-        
-        temp_priority=data.get("priority", task["priority"])
-        if(data.get("status", task["status"])=="completed"):
-            temp_priority=0
+
+        # Gather updated or fallback data
+        title = data.get("title", task.get("title", ""))
+        description = data.get("description", task.get("description", ""))
+        due_date = data.get("due_date", task.get("due_date", ""))
+        status = data.get("status", task.get("status", "not_started"))
+        type_ = data.get("type", task.get("type", "personal"))
+        scale = data.get("scale", "scale1")
+
+        # If status is "completed", set priority to 0
+        if status == "completed":
+            temp_priority = 0
+        else:
+            # Recompute priority using model
+            input_data = pd.DataFrame([{
+                "title": title,
+                "description": description,
+                "due_date": due_date,
+                "status": status,
+                "type": type_,
+            }])
+
+            try:
+                predicted_priority = float(preprocess(input_data)[0])
+            except Exception as e:
+                return jsonify({"error": f"Failed to predict priority: {str(e)}"}), 400
+
+            scale_factor = {"scale1": 0.96, "scale2": 0.42, "scale3": 0.12}
+            temp_priority = round(
+                predicted_priority * 0.8 + 0.2 * scale_factor.get(scale, 0.5), 2
+            )
+
+        # Update the task in the database
         tasks_collection.update_one(
             {"_id": ObjectId(task_id)},
             {"$set": {
-                "title": data.get("title", task["title"]),
-                "description": data.get("description", task["description"]),
-                "due_date": data.get("due_date", task["due_date"]),
-                "type": data.get("type", task["type"]),
-                "status": data.get("status", task["status"]),
+                "title": title,
+                "description": description,
+                "due_date": due_date,
+                "type": type_,
+                "status": status,
                 "priority": temp_priority,
             }}
         )
+
         return jsonify({"message": "Task updated successfully"}), 200
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 
 # Delete Task
@@ -228,21 +233,21 @@ def delete_task(task_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# @app.route("/generate-title", methods=["POST"])
-# @jwt_required()
-# def generate_task_title():
-#     data = request.json
-#     description = data.get("description")
+@app.route("/generate-title", methods=["POST"])
+@jwt_required()
+def generate_task_title():
+    data = request.json
+    description = data.get("description")
 
-#     if not description:
-#         return jsonify({"error": "Description is required"}), 400
+    if not description:
+        return jsonify({"error": "Description is required"}), 400
 
-#     # Generate title using the title generation function
-#     try:
-#         generated_title = generate_title(description)
-#         return jsonify({"generated_title": generated_title}), 200
-#     except Exception as e:
-#         return jsonify({"error": f"Failed to generate title: {str(e)}"}), 500
+    # Generate title using the title generation function
+    try:
+        generated_title = generate_title(description)
+        return jsonify({"generated_title": generated_title}), 200
+    except Exception as e:
+        return jsonify({"error": f"Failed to generate title: {str(e)}"}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)

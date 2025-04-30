@@ -8,14 +8,6 @@ import UpdateTask from "../components/UpdateTask";
 
 function Dashboard({ onLogout }) {
   const [tasks, setTasks] = useState([]);
-  const [taskData, setTaskData] = useState({
-    title: "",
-    description: "",
-    due_date: "",
-    type: "personal",
-    status: "not_started",
-    priority: 0.5,
-  });
   const [filter, setFilter] = useState({ type: "", status: "", sortBy: "" });
   const [currentTab, setCurrentTab] = useState("addTask");
   const [isUpdateMode, setIsUpdateMode] = useState(false);
@@ -58,7 +50,9 @@ function Dashboard({ onLogout }) {
       await axios.put(
         `http://127.0.0.1:5000/tasks/${taskToUpdate._id}`,
         updatedData,
-        { headers: { Authorization: `Bearer ${token}` } }
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
 
       alert("Task updated successfully.");
@@ -88,7 +82,25 @@ function Dashboard({ onLogout }) {
     }
   };
 
+  const generateTitle = async (description) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
+        "http://127.0.0.1:5000/generate-title",
+        { description },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      return response.data.generated_title;
+    } catch (error) {
+      console.error("Error generating title:", error);
+      return null;
+    }
+  };
+
   const handleLogout = () => {
+    localStorage.removeItem("token");
     onLogout();
   };
 
@@ -124,11 +136,7 @@ function Dashboard({ onLogout }) {
         <div className="row justify-content-center">
           <div className="col-12">
             {currentTab === "addTask" && (
-              <AddTask
-                handleChange={(e) => setTaskData({ ...taskData, [e.target.name]: e.target.value })}
-                createTask={createTask}
-                taskData={taskData}
-              />
+              <AddTask createTask={createTask} generateTitle={generateTitle} />
             )}
 
             {currentTab === "yourTasks" && (

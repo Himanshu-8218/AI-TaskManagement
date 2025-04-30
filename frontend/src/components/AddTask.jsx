@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import axios from "axios"; // Make sure to install axios
 
-function AddTask({ createTask }) {
+function AddTask({ createTask, generateTitle }) {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -22,15 +21,16 @@ function AddTask({ createTask }) {
   };
 
   const handleGenerateTitle = async () => {
-    try {
-      const response = await axios.post(
-        "/generate-title",
-        { description: formData.description },
-        { headers: { Authorization: `Bearer ${localStorage.getItem("access_token")}` } }
-      );
-      setGeneratedTitle(response.data.generated_title); // Update state with the generated title
-    } catch (error) {
-      console.error("Error generating title:", error);
+    setGeneratedTitle("Generating...");
+    const newTitle = await generateTitle(formData.description);
+    if (newTitle) {
+      setGeneratedTitle(newTitle);
+      setFormData((prev) => ({
+        ...prev,
+        title: newTitle,
+      }));
+    } else {
+      setGeneratedTitle("Failed to generate title");
     }
   };
 
@@ -40,7 +40,7 @@ function AddTask({ createTask }) {
       alert("Please fill out all fields before submitting!");
       return;
     }
-    createTask(formData); // Pass formData to createTask function
+    createTask(formData);
     setFormData({
       title: "",
       description: "",
@@ -49,6 +49,7 @@ function AddTask({ createTask }) {
       status: "not_started",
       scale: "scale1",
     });
+    setGeneratedTitle("");
   };
 
   return (
@@ -58,7 +59,7 @@ function AddTask({ createTask }) {
         <input
           name="title"
           placeholder="Title"
-          value={formData.title || generatedTitle}  // Show generated title if exists
+          value={formData.title}
           onChange={handleChange}
           required
         />
