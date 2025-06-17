@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaEdit, FaTrash, FaCalendarAlt, FaFlag } from "react-icons/fa";
 
 function YourTasks({ tasks, deleteTask, selectTaskForUpdate }) {
   const [filteredTasks, setFilteredTasks] = useState(tasks);
@@ -31,80 +31,88 @@ function YourTasks({ tasks, deleteTask, selectTaskForUpdate }) {
   };
 
   return (
-    <div className="min-vh-100 d-flex flex-column" style={{width: "50rem"}}>
+    <div className="min-vh-100 d-flex flex-column" style={{width: "100%"}}>
       {selectedTask ? (
-        <div className="d-flex flex-column justify-content-center align-items-center min-vh-100" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000 }}>
-          <div className="card p-4 shadow" style={{ width: "90%", maxWidth: "800px" }}>
-            <button className="btn btn-dark mb-3" onClick={() => setSelectedTask(null)}>
+        <div className="d-flex flex-column justify-content-center align-items-center min-vh-100" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000, backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+          <div className="card p-4 shadow" style={{ width: "90%", maxWidth: "800px", backgroundColor: 'white' }}>
+            <button className="btn btn-outline-primary mb-3" onClick={() => setSelectedTask(null)}>
               Back to Tasks
             </button>
-            <h2 className="mb-3 text-center">Task Details</h2>
-            <h4><strong>Title:</strong> {selectedTask.title}</h4>
-            <p><strong>Description:</strong> {selectedTask.description}</p>
-            <p><strong>Due Date:</strong> {selectedTask.due_date}</p>
-            <p><strong>Type:</strong> {selectedTask.type}</p>
-            <p><strong>Status:</strong> {selectedTask.status}</p>
-            <p><strong>Priority:</strong> {selectedTask.priority ? Number(selectedTask.priority).toFixed(2) : 0}</p>
-            <div className="d-flex gap-2 mt-3">
+            <h2 className="mb-4 text-center">Task Details</h2>
+            <div className="task-details">
+              <div className="mb-3">
+                <h4 className="text-primary">Title</h4>
+                <p className="lead">{selectedTask.title}</p>
+              </div>
+              <div className="mb-3">
+                <h4 className="text-primary">Description</h4>
+                <p>{selectedTask.description}</p>
+              </div>
+              <div className="row mb-3">
+                <div className="col-md-4">
+                  <h4 className="text-primary">Due Date</h4>
+                  <p><FaCalendarAlt className="me-2" />{selectedTask.due_date}</p>
+                </div>
+                <div className="col-md-4">
+                  <h4 className="text-primary">Type</h4>
+                  <p>{selectedTask.type}</p>
+                </div>
+                <div className="col-md-4">
+                  <h4 className="text-primary">Status</h4>
+                  <p>{selectedTask.status}</p>
+                </div>
+              </div>
+              <div className="mb-3">
+                <h4 className="text-primary">Priority</h4>
+                <p><FaFlag className="me-2" />{selectedTask.priority ? Number(selectedTask.priority).toFixed(2) : 0}</p>
+              </div>
+            </div>
+            <div className="d-flex gap-2 mt-4">
               <button className="btn btn-primary" onClick={() => selectTaskForUpdate(selectedTask)}>Edit Task</button>
               <button className="btn btn-danger" onClick={() => { deleteTask(selectedTask._id); setSelectedTask(null); }}>Delete Task</button>
             </div>
           </div>
         </div>
       ) : (
-        <div className="container flex-grow-1 d-flex flex-column py-4 mt-7" style={{width: '100%'}}>
-            <h2 className="text-center mb-4 text-primary">Your Tasks</h2>
-            <div className="row g-3 mb-4 justify-content-center">
-              <div className="col-md-3">
-                <select className="form-select" name="type" value={filter.type} onChange={handleFilterChange}>
-                  <option value="">Filter by Type</option>
-                  <option value="personal">Personal</option>
-                  <option value="weekend">Weekend</option>
-                  <option value="official">Official</option>
-                </select>
-              </div>
-              <div className="col-md-3">
-                <select className="form-select" name="status" value={filter.status} onChange={handleFilterChange}>
-                  <option value="">Filter by Status</option>
-                  <option value="not_started">Not Started</option>
-                  <option value="in_progress">In Progress</option>
-                  <option value="completed">Completed</option>
-                </select>
-              </div>
-              <div className="col-md-3">
-                <select className="form-select" name="sortBy" value={filter.sortBy} onChange={handleFilterChange}>
-                  <option value="">Sort by</option>
-                  <option value="due_date">Due Date</option>
-                  <option value="priority">Priority</option>
-                </select>
-              </div>
-            </div>
+        <div className="container flex-grow-1 d-flex flex-column py-4">
+          <h2 className="text-center mb-4 text-primary">Your Tasks</h2>
+          <div className="filter">
+            <select className="form-select" name="type" value={filter.type} onChange={handleFilterChange}>
+              <option value="">Filter by Type</option>
+              <option value="personal">Personal</option>
+              <option value="weekend">Weekend</option>
+              <option value="official">Official</option>
+            </select>
+            <select className="form-select" name="status" value={filter.status} onChange={handleFilterChange}>
+              <option value="">Filter by Status</option>
+              <option value="not_started">Not Started</option>
+              <option value="in_progress">In Progress</option>
+              <option value="completed">Completed</option>
+            </select>
+            <select className="form-select" name="sortBy" value={filter.sortBy} onChange={handleFilterChange}>
+              <option value="">Sort by</option>
+              <option value="due_date">Due Date</option>
+              <option value="priority">Priority</option>
+            </select>
+          </div>
           <div className="container justify-content-center align-items-center flex-grow-1">
-
-            <div className="mx-auto" style={{ width: '100%',overflowY: 'scroll', maxHeight: '70vh' }}>
+            <div className="mx-auto" style={{ width: '100%', overflowY: 'auto', maxHeight: '70vh' }}>
               {filteredTasks.length > 0 ? (
                 filteredTasks.map((task) => (
                   <div
                     key={task._id}
-                    className="card mb-3 shadow-sm p-3"
-                    style={{ 
-                      backgroundColor: "#f8f9fa",
-                      borderLeft: "6px solid #2a746c",
-                      cursor: "pointer",
-                    }}
+                    className="task-card"
                     onClick={() => setSelectedTask(task)}
                   >
                     <div className="d-flex justify-content-between align-items-start">
-                      <div >
-                        <h4 className="mb-2 text-dark">{task.title}</h4>
-                        <div className="d-flex gap-3">
-                          <small className="text-muted">Due: {task.due_date}</small>
-                          <small className="text-secondary">
-                            Priority: {task.priority && !isNaN(task.priority) ? Number(task.priority).toFixed(2) : "COMPLETED"}
-                          </small>
+                      <div>
+                        <h4 className="mb-2">{task.title}</h4>
+                        <div className="task-meta">
+                          <span><FaCalendarAlt className="me-1" />{task.due_date}</span>
+                          <span><FaFlag className="me-1" />{task.priority && !isNaN(task.priority) ? Number(task.priority).toFixed(2) : "COMPLETED"}</span>
                         </div>
                       </div>
-                      <div className="d-flex gap-2">
+                      <div className="task-actions">
                         <button
                           className="btn btn-sm btn-outline-primary"
                           onClick={(e) => {

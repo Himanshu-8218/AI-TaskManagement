@@ -118,7 +118,7 @@ function Dashboard({ onLogout }) {
     <>
       <nav className="navbar navbar-expand-lg bg-primary navbar-dark fixed-top shadow-sm">
         <div className="container-fluid px-4">
-          <span className="navbar-brand fw-bold">TASKBOT | AI TASK MANAGEMENT</span>
+          <span className="navbar-brand fw-bold">TASKBOT | GEN-AI TASK MANAGEMENT</span>
           <div className="d-flex align-items-center gap-2">
             {!isUpdateMode && (
               <>

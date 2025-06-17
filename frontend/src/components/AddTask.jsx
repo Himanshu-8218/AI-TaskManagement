@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { FaPlus, FaCalendarAlt, FaTag, FaFlag, FaMagic, FaTasks } from "react-icons/fa";
 
 function AddTask({ createTask, generateTitle }) {
   const [formData, setFormData] = useState({
@@ -54,47 +55,139 @@ function AddTask({ createTask, generateTitle }) {
 
   return (
     <div className="createTask">
-      <h2>Create Task</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          name="title"
-          placeholder="Title"
-          value={formData.title}
-          onChange={handleChange}
-          required
-        />
-        <input
-          name="description"
-          placeholder="Description"
-          value={formData.description}
-          onChange={handleChange}
-          required
-        />
-        <button type="button" onClick={handleGenerateTitle}>
-          Generate Title
-        </button>
-        <input
-          name="due_date"
-          type="date"
-          value={formData.due_date}
-          onChange={handleChange}
-          required
-        />
-        <select name="type" value={formData.type} onChange={handleChange}>
-          <option value="personal">Personal</option>
-          <option value="weekend">Weekend</option>
-          <option value="official">Official</option>
-        </select>
-        <select name="status" value={formData.status} onChange={handleChange}>
-          <option value="not_started">Not Started</option>
-          <option value="in_progress">In Progress</option>
-        </select>
-        <select name="scale" value={formData.scale} onChange={handleChange}>
-          <option value="scale1">Scale 1</option>
-          <option value="scale2">Scale 2</option>
-          <option value="scale3">Scale 3</option>
-        </select>
-        <button type="submit">Create Task</button>
+      <div className="task-header">
+        <FaTasks className="task-icon" />
+        <h2>Create New Task</h2>
+      </div>
+      <form onSubmit={handleSubmit} className="task-form">
+        <div className="form-group">
+          <label className="form-label">
+            <span className="label-icon">📝</span>
+            Task Title
+          </label>
+          <input
+            name="title"
+            placeholder="Enter a descriptive title for your task"
+            value={formData.title}
+            onChange={handleChange}
+            className="form-control"
+            required
+          />
+          {generatedTitle && (
+            <div className="generated-title">
+              <span className="badge">Generated</span>
+              {generatedTitle}
+            </div>
+          )}
+        </div>
+
+        <div className="form-group">
+          <label className="form-label">
+            <span className="label-icon">📋</span>
+            Description
+          </label>
+          <div className="d-flex gap-2">
+            <textarea
+              name="description"
+              placeholder="Provide detailed information about your task..."
+              value={formData.description}
+              onChange={handleChange}
+              className="form-control"
+              style={{ width: '90%' }}
+              rows="3"
+              required
+            />
+            <button 
+              type="button" 
+              onClick={handleGenerateTitle}
+              className="btn btn-outline-primary generate-btn"
+              title="Generate title from description"
+              style={{ width: '10%', height: 'fit-content' }}
+            >
+              <FaMagic className="me-1" />
+              
+            </button>
+          </div>
+        </div>
+
+        <div className="form-section">
+          <div className="row g-2">
+            <div className="col-md-4">
+              <label className="form-label">
+                <FaCalendarAlt className="me-1" />
+                Due Date
+              </label>
+              <input
+                name="due_date"
+                type="date"
+                value={formData.due_date}
+                onChange={handleChange}
+                className="form-control"
+                required
+              />
+            </div>
+
+            <div className="col-md-4">
+              <label className="form-label">
+                <FaTag className="me-1" />
+                Task Type
+              </label>
+              <select 
+                name="type" 
+                value={formData.type} 
+                onChange={handleChange}
+                className="form-select"
+              >
+                <option value="personal">Personal</option>
+                <option value="weekend">Weekend</option>
+                <option value="official">Official</option>
+              </select>
+            </div>
+
+            <div className="col-md-4">
+              <label className="form-label">
+                <FaFlag className="me-1" />
+                Status
+              </label>
+              <select 
+                name="status" 
+                value={formData.status} 
+                onChange={handleChange}
+                className="form-select"
+              >
+                <option value="not_started">Not Started</option>
+                <option value="in_progress">In Progress</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="form-group mt-2">
+            <label className="form-label">
+              <span className="label-icon">🎯</span>
+              Priority Scale
+            </label>
+            <select 
+              name="scale" 
+              value={formData.scale} 
+              onChange={handleChange}
+              className="form-select"
+            >
+              <option value="scale1">Low Priority</option>
+              <option value="scale2">Medium Priority</option>
+              <option value="scale3">High Priority</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="form-group mt-3 text-center">
+          <button 
+            type="submit" 
+            className="btn btn-primary btn-lg create-btn"
+          >
+            <FaPlus className="me-2" />
+            Create Task
+          </button>
+        </div>
       </form>
     </div>
   );
